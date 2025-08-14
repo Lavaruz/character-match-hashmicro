@@ -1,0 +1,9 @@
+node_modules
+build
+npm-debug.log
+logs
+dist
+.DS_Store
+
+# HashMicro test purpose
+# .env*
