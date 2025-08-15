@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Character Match</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+    <script src="/utils/network-helper.js"></script>
 </head>
 <body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md my-10">
@@ -142,31 +145,20 @@
 
             /* Kirim ke backend */
             try {
-                const res = await fetch('/api/v1/users/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        email,
-                        password
-                    })
-                });
+                const res = await apiPost('/api/v1/users/register', { username, email, password });
 
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    alert(data.message || 'Account created successfully!');
+                if (res.success) {
+                    alert(res.message || 'Account created successfully!');
                     window.location.href = '/login'; // redirect ke login
                 } else {
-                    alert(data.message || 'Registration failed');
+                    alert(res.message || 'Registration failed');
                 }
             } catch (error) {
-                console.error('Error during registration:', error);
-                alert('An error occurred while trying to register');
+                console.error('Error during registration:', error.message);
+                alert(error.message || 'An error occurred while trying to register');
             }
         });
+
 
         // Real-time password matching feedback
         document.getElementById('confirmPassword').addEventListener('input', function() {

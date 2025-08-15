@@ -41,9 +41,6 @@ function verifyWebRoute(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-
-
-
 export {
   requireAuth,
   verifyWebRoute

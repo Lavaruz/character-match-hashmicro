@@ -1,10 +1,9 @@
-// lib/cache.ts
 import { LRUCache } from 'lru-cache'
 import logger from './logger';
 
 const cache = new LRUCache<string, any>({
-  max: 500,                 // maksimal jumlah item (bisa sesuaikan)
-  ttl: 1000 * 60 * 60,       // default TTL = 60 menit
+  max: 500,
+  ttl: 1000 * 60 * 60,
   updateAgeOnGet: false,
   updateAgeOnHas: false,
   allowStale: false
