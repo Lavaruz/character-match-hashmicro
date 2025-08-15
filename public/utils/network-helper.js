@@ -1,4 +1,4 @@
-const SECURE = false;
+const SECURE = true;
 const AES_KEY = "xYDBqQ1prC5Np66DxYDBqQ1prC5Np66D"; // ideally dari env FE
 
 // Crypto handling
