@@ -76,7 +76,7 @@ export const historyCheckMatch = async (req: Request, res: Response) => {
     return sendEncrypted(res, 500, {
       success: false,
       message: "Internal Server Error",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      error: isDev ? error.message : undefined,
     });
   }
 };
@@ -220,8 +220,7 @@ export const historyUpdate = async (req: Request, res: Response) => {
     logger.error("Error in historyUpdate:", error);
     return sendEncrypted(res, 500, {
       message: "Internal Server Error",
-      error:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
+      error: isDev ? error.message : undefined,
     });
   }
 };

@@ -416,11 +416,11 @@
                             </span>
                         </div>
                         <div class="text-sm text-gray-600 mb-2">
-                            <p><strong>Input 1:</strong> "${escapeHTML(history.input1)}"</p>
-                            <p><strong>Input 2:</strong> "${escapeHTML(history.input2)}"</p>
+                            <p class="line-clamp-5"><strong>Input 1:</strong> "${escapeHTML(history.input1)}"</p>
+                            <p class="line-clamp-5"><strong>Input 2:</strong> "${escapeHTML(history.input2)}"</p>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-lg font-bold text-purple-600">${history.percentage}%</span>
+                            <span class="text-lg font-bold text-purple-600">${history.percentage.toFixed(3)}%</span>
                             <span class="text-xs text-gray-500">${history.matchedChars || '-'} / ${history.totalChars || '-'}</span>
                         </div>
                         <div class="flex items-center justify-end gap-2 mt-2">

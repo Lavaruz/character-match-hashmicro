@@ -1,5 +1,5 @@
 const SECURE = true;
-const AES_KEY = "xYDBqQ1prC5Np66DxYDBqQ1prC5Np66D"; // ideally dari env FE
+const AES_KEY = "xYDBqQ1prC5Np66DxYDBqQ1prC5Np66D"; // ideally dari env FE (environtment[Angular] / PUBLIC_ENV[Next])
 
 // Crypto handling
 function encryptFrontend(data, key = AES_KEY) {

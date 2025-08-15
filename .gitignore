@@ -2,7 +2,7 @@ node_modules
 build
 npm-debug.log
 logs
-# dist
+dist
 .DS_Store
 
 # HashMicro test purpose

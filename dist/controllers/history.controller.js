@@ -61,7 +61,7 @@ const historyCheckMatch = async (req, res) => {
         return (0, encription_helper_1.sendEncrypted)(res, 500, {
             success: false,
             message: "Internal Server Error",
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            error: isDev ? error.message : undefined,
         });
     }
 };
@@ -189,7 +189,7 @@ const historyUpdate = async (req, res) => {
         logger_1.default.error("Error in historyUpdate:", error);
         return (0, encription_helper_1.sendEncrypted)(res, 500, {
             message: "Internal Server Error",
-            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+            error: isDev ? error.message : undefined,
         });
     }
 };
