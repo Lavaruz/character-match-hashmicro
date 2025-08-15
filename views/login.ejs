@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Character Match</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+    <script src="/utils/network-helper.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
@@ -78,55 +81,45 @@
     <script>
         // Simple form validation
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault()
+            e.preventDefault();
+
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
             const remember = document.getElementById('remember').checked;
 
             if (!username || !password) {
-                e.preventDefault();
                 alert('Please fill in all fields');
                 return false;
             }
 
             if (username.length < 3) {
-                e.preventDefault();
                 alert('Username must be at least 3 characters long');
                 return false;
             }
 
             if (password.length < 6) {
-                e.preventDefault();
                 alert('Password must be at least 6 characters long');
                 return false;
             }
 
             try {
-                const res = await fetch('/api/v1/users/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        identifier: username, // bisa username atau email
-                        password: password,
-                        remember: remember
-                    }),
+                const res = await apiPost('/api/v1/users/login', {
+                    identifier: username, // bisa username atau email
+                    password: password,
+                    remember: remember
                 });
 
-                const data = await res.json();
-
-                if (res.ok && data.success) {
+                if (res.success) {
                     window.location.href = '/';
                 } else {
-                    alert(data.message || 'Login failed');
+                    alert(res.message || 'Login failed');
                 }
             } catch (error) {
-                console.error('Error during login:', error);
-                alert('An error occurred while trying to login');
+                console.error('Error during login:', error.message);
+                alert(error.message || 'An error occurred while trying to login');
             }
-            
         });
+
     </script>
 </body>
 </html>

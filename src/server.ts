@@ -17,7 +17,7 @@ import helmet from "helmet";
 const app = express();
 
 /**
- * Karena akan deploy di Railways untuk saat ini origin akan "*"
+ * Karena akan deploy di Railway untuk saat ini origin akan "*"
  * Soalnya railways domainnya random :), jadi ribet setupnya
  */
 app.use(cors({
@@ -52,8 +52,9 @@ sequelize.sync({alter: true}).then(() => {
     app.use(`/api/${VERSION_API}/users`, userRouter);
     app.use(`/api/${VERSION_API}/histories`, historyRouter);
 
+    logger.info(`db hosted on "${process.env.DB}"`)
     app.listen(PORT, () => logger.info(`Server running on http://localhost:${PORT}`));
 })
 .catch((error) => {
-    logger.error(`Koneksi database gagal: ${error.message}`);
+    logger.error(`Koneksi database gagal: ${error}`);
 });
