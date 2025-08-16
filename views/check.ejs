@@ -102,6 +102,38 @@
                             </div>
                         </div>
 
+                        <!-- Allow Duplicates Mode -->
+                        <div class="">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Duplicate Handling</label>
+                            <div class="flex items-center space-x-6">
+                                <label class="flex items-center cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="allowDuplicates" 
+                                        value="false" 
+                                        checked
+                                        class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                    >
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <strong>Count Once</strong> (Recommended)
+                                        <br><span class="text-xs text-gray-500">Each character counted only once (B appears → count as 1)</span>
+                                    </span>
+                                </label>
+
+                                <label class="flex items-center cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="allowDuplicates" 
+                                        value="true"
+                                        class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                    >
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <strong>Count Duplicates</strong>
+                                        <br><span class="text-xs text-gray-500">Count all occurrences (BBB → count as 3)</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
 
                         <!-- Calculate Button -->
                         <button 
@@ -169,7 +201,7 @@
     </div>
 
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-30 hidden items-center justify-center">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 class="text-lg font-bold mb-4">Edit History</h3>
             <input type="hidden" id="editId">
             <div class="mb-4">
@@ -190,6 +222,19 @@
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="editCaseSensitive" value="true" class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500">
                         <span class="ml-2 text-sm text-gray-700">Case-Sensitive</span>
+                    </label>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Duplicate Handling</label>
+                <div class="flex items-center space-x-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="editAllowDuplicates" value="false" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">Count Once</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="editAllowDuplicates" value="true" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">Count Duplicates</span>
                     </label>
                 </div>
             </div>
@@ -214,6 +259,7 @@
             const input1 = document.getElementById('input1').value.trim();
             const input2 = document.getElementById('input2').value.trim();
             const caseSensitive = document.querySelector('input[name="caseSensitive"]:checked').value === 'true';
+            const allowDuplicates = document.querySelector('input[name="allowDuplicates"]:checked').value === 'true';
 
             if (!input1 || !input2) {
                 showError('Please fill in both input fields');
@@ -225,7 +271,12 @@
             hideError();
 
             try {
-                const res = await apiPost('/api/v1/histories/check', { input1, input2, caseSensitive });
+                const res = await apiPost('/api/v1/histories/check', { 
+                    input1, 
+                    input2, 
+                    caseSensitive,
+                    allowDuplicates 
+                });
                 showResult(res);
                 refreshHistory();
             } catch (err) {
@@ -261,12 +312,18 @@
             const modeText = data.data.caseSensitive ? 'Case-Sensitive' : 'Case-Insensitive';
             const modeColor = data.data.caseSensitive ? 'text-orange-600' : 'text-green-600';
             
+            const duplicateText = data.data.allowDuplicates ? 'Count Duplicates' : 'Count Once';
+            const duplicateColor = data.data.allowDuplicates ? 'text-blue-600' : 'text-teal-600';
+            
             resultContent.innerHTML = `
                 <div class="text-center">
                     <div class="text-4xl font-bold text-purple-600 mb-2">${data.data.percentage}%</div>
-                    <div class="mb-2">
+                    <div class="mb-2 flex justify-center gap-2">
                         <span class="text-sm ${modeColor} font-medium px-2 py-1 bg-gray-100 rounded-full">
                             ${modeText} Mode
+                        </span>
+                        <span class="text-sm ${duplicateColor} font-medium px-2 py-1 bg-gray-100 rounded-full">
+                            ${duplicateText}
                         </span>
                     </div>
                     <p class="text-gray-700 mb-4">${data.data.matchedChars} out of ${data.data.totalChars} characters match</p>
@@ -317,15 +374,21 @@
             }
         }
 
-        function openEditModal(id, input1, input2, caseSensitive = false) {
+        function openEditModal(id, input1, input2, caseSensitive = false, allowDuplicates = false) {
             document.getElementById('editId').value = id;
             document.getElementById('editInput1').value = input1;
             document.getElementById('editInput2').value = input2;
 
             // Set radio sesuai caseSensitive
-            const radios = document.getElementsByName('editCaseSensitive');
-            radios.forEach(radio => {
+            const caseSensitiveRadios = document.getElementsByName('editCaseSensitive');
+            caseSensitiveRadios.forEach(radio => {
                 radio.checked = (radio.value === String(caseSensitive));
+            });
+
+            // Set radio sesuai allowDuplicates
+            const allowDuplicatesRadios = document.getElementsByName('editAllowDuplicates');
+            allowDuplicatesRadios.forEach(radio => {
+                radio.checked = (radio.value === String(allowDuplicates));
             });
 
             document.getElementById('editModal').classList.remove('hidden');
@@ -342,6 +405,7 @@
             const input1 = document.getElementById('editInput1').value.trim();
             const input2 = document.getElementById('editInput2').value.trim();
             const caseSensitive = document.querySelector('input[name="editCaseSensitive"]:checked').value === 'true';
+            const allowDuplicates = document.querySelector('input[name="editAllowDuplicates"]:checked').value === 'true';
 
             if (!input1 || !input2) {
                 alert('Both inputs are required');
@@ -349,7 +413,12 @@
             }
 
             try {
-                const res = await apiPut(`/api/v1/histories/${id}`, { input1, input2, caseSensitive });
+                const res = await apiPut(`/api/v1/histories/${id}`, { 
+                    input1, 
+                    input2, 
+                    caseSensitive,
+                    allowDuplicates 
+                });
 
                 if (!res.success) {
                     throw new Error(res.message || 'Failed to update history');
@@ -408,9 +477,14 @@
                 historyList.innerHTML = data.map(history => `
                     <div class="bg-gray-50 rounded-lg p-4 border">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-800 ${history.caseSensitive ? 'text-orange-600' : 'text-green-600'}">
-                                ${history.caseSensitive ? 'Case-Sensitive' : 'Case-Insensitive'}
-                            </span>
+                            <div class="flex gap-2">
+                                <span class="text-xs font-medium px-2 py-1 rounded-full ${history.caseSensitive ? 'text-orange-600 bg-orange-100' : 'text-green-600 bg-green-100'}">
+                                    ${history.caseSensitive ? 'Case-Sensitive' : 'Case-Insensitive'}
+                                </span>
+                                <span class="text-xs font-medium px-2 py-1 rounded-full ${history.allowDuplicates ? 'text-blue-600 bg-blue-100' : 'text-teal-600 bg-teal-100'}">
+                                    ${history.allowDuplicates ? 'Duplicates' : 'Count Once'}
+                                </span>
+                            </div>
                             <span class="text-xs text-gray-500">
                                 ${new Date(history.createdAt).toLocaleDateString()}
                             </span>
@@ -420,11 +494,11 @@
                             <p class="line-clamp-5"><strong>Input 2:</strong> "${escapeHTML(history.input2)}"</p>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-lg font-bold text-purple-600">${history.percentage.toFixed(3)}%</span>
+                            <span class="text-lg font-bold text-purple-600">${history.percentage.toFixed(2)}%</span>
                             <span class="text-xs text-gray-500">${history.matchedChars || '-'} / ${history.totalChars || '-'}</span>
                         </div>
                         <div class="flex items-center justify-end gap-2 mt-2">
-                            <button onclick="openEditModal(${history.id}, '${escapeHTML(history.input1)}', '${escapeHTML(history.input2)}', ${history.caseSensitive})" 
+                            <button onclick="openEditModal(${history.id}, '${escapeHTML(history.input1)}', '${escapeHTML(history.input2)}', ${history.caseSensitive}, ${history.allowDuplicates || false})" 
                                 class="text-blue-600 hover:text-blue-800 text-xs">Edit</button>
                             <button onclick="deleteHistory(${history.id})" 
                                 class="text-red-600 hover:text-red-800 text-xs">Delete</button>

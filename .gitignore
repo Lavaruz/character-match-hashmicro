@@ -4,6 +4,5 @@ npm-debug.log
 logs
 dist
 .DS_Store
-
-# HashMicro test purpose
-# .env*
+.env
+.env.production

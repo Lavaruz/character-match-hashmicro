@@ -26,7 +26,8 @@ export const historyCheckMatch = async (req: Request, res: Response) => {
     const {
       input1,
       input2,
-      caseSensitive = false
+      caseSensitive = false,
+      allowDuplicates = false
     } = req.body;
 
     if (!input1 || !input2) {
@@ -43,7 +44,7 @@ export const historyCheckMatch = async (req: Request, res: Response) => {
       });
     }
 
-    const matchStats = calculateMatchStats(input1, input2, caseSensitive);
+    const matchStats = calculateMatchStats(input1, input2, caseSensitive, allowDuplicates);
 
     const history = await HistoryModel.create({
       input1,
@@ -51,7 +52,8 @@ export const historyCheckMatch = async (req: Request, res: Response) => {
       percentage: matchStats.percentage,
       matchedChars: matchStats.matchedChars,
       totalChars: matchStats.totalChars,
-      caseSensitive
+      caseSensitive,
+      allowDuplicates
     });
 
     // Clear / invalidate all cache
@@ -64,6 +66,7 @@ export const historyCheckMatch = async (req: Request, res: Response) => {
         input1,
         input2,
         caseSensitive,
+        allowDuplicates,
         percentage: matchStats.percentage.toFixed(2),
         matchedChars: matchStats.matchedChars,
         totalChars: matchStats.totalChars,
@@ -160,7 +163,7 @@ export const historyGetAll = async (req: Request, res: Response) => {
 export const historyUpdate = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { input1, input2, caseSensitive } = req.body;
+    const { input1, input2, caseSensitive, allowDuplicates } = req.body;
 
     // Validasi input
     if (!input1 || !input2) {
@@ -178,10 +181,11 @@ export const historyUpdate = async (req: Request, res: Response) => {
     }
 
     const isCaseSensitive = caseSensitive === true || caseSensitive === "true";
+    const isAllowDuplicates = allowDuplicates === true || allowDuplicates === "true";
 
     // Hitung ulang stats
     const { percentage, matchedChars, totalChars, matchedCharsList } =
-      calculateMatchStats(input1, input2, isCaseSensitive);
+      calculateMatchStats(input1, input2, isCaseSensitive, allowDuplicates);
 
     const history = await HistoryModel["model"].findByPk(id);
     if (!history) {
@@ -195,6 +199,7 @@ export const historyUpdate = async (req: Request, res: Response) => {
       input1,
       input2,
       caseSensitive: isCaseSensitive,
+      allowDuplicates: isAllowDuplicates,
       percentage,
       matchedChars,
       totalChars,
@@ -210,6 +215,7 @@ export const historyUpdate = async (req: Request, res: Response) => {
         input1,
         input2,
         caseSensitive: isCaseSensitive,
+        allowDuplicates: isAllowDuplicates,
         percentage: percentage.toFixed(2),
         matchedChars,
         totalChars,
@@ -268,11 +274,11 @@ export const historyDelete = async (req: Request, res: Response) => {
  *   - Jika case-insensitive, huruf yang match seharusnya A, C, dan D (3/5 = 60%)
  *   - Jika case-sensitive, huruf yang match seharusnya hanya D (1/5 = 20%)
  * 
- * Untuk mengatasi ambiguitas, function ini menyediakan opsi `caseSensitive`
+ * Untuk mengatasi ambiguitas, function ini menyediakan opsi `caseSensitive` & `allowDuplicates`
  * agar user bisa memilih mode yang diinginkan.
  */
 
-function calculateMatchStats(input1: string, input2: string, caseSensitive: boolean = false) {
+function calculateMatchStats(input1: string, input2: string, caseSensitive: boolean = false, allowDuplicates: boolean = false) {
   const processedInput1 = caseSensitive ? input1 : input1.toUpperCase();
   const processedInput2 = caseSensitive ? input2 : input2.toUpperCase();
 
@@ -288,7 +294,7 @@ function calculateMatchStats(input1: string, input2: string, caseSensitive: bool
     const currentChar = chars1[i];
 
     // Skip duplikasi
-    if (matchedList.includes(currentChar)) {
+    if (!allowDuplicates && matchedList.includes(currentChar)) {
       continue;
     }
 

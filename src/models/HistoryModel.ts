@@ -10,6 +10,7 @@ export class History extends Model {
   public matchedChars!: number;
   public totalChars!: number;
   public caseSensitive!: boolean;
+  public allowDuplicates!: boolean;
 }
 
 History.init(
@@ -37,6 +38,11 @@ History.init(
         defaultValue: 0
     },
     caseSensitive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    allowDuplicates: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
