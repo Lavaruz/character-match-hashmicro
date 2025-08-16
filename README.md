@@ -133,8 +133,9 @@ DB_NAME=character_match
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
-# CORS
-CORS_ORIGIN= "*"
+# Encription
+# Jika melakukan perubahan disini, harap ubah juga SECURE di /public/network-heloer.js
+SECURE=true
 ```
 
 ### 4️⃣ Jalankan dalam Development
